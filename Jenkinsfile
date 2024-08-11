@@ -5,6 +5,7 @@ pipeline {
         registry = "590183706325.dkr.ecr.ap-south-1.amazonaws.com/docker-repo"
         imageName = "nginx-image"
         namespace = "dev"  // Target namespace
+        awsCredentialsId = "aws-ecr-credentials"
     }
 
     stages {
@@ -25,7 +26,8 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${registry}"
+                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: awsCredentialsId]]) {
+                     sh "aws ecr get-login-password --region region | docker login --username AWS --password-stdin ${registry}"
                     sh "docker push ${registry}/${imageName}:${BUILD_NUMBER}"
                 }
             }
