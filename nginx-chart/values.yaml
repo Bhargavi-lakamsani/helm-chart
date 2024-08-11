@@ -11,13 +11,16 @@ service:
 
 ingress:
   enabled: true
-  className: "nginx"
+  className: "alb"  # Set to "alb" for AWS Application Load Balancer
   annotations:
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing" # or "internal" if you want internal ALB
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/group.name: "nginx-group"
+    alb.ingress.kubernetes.io/group.order: "1"
   hosts:
     - host: example.com
       paths:
         - path: /
           pathType: Prefix
   tls: []
-
