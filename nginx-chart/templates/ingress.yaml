@@ -1,34 +1,23 @@
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "nginx-chart.fullname" . }}
+  namespace: {{ .Values.namespace }}
   annotations:
-    {{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ $value }}
-    {{- end }}
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.name: {{ include "nginx-chart.name" . }}
+    alb.ingress.kubernetes.io/group.order: "1"
 spec:
-  ingressClassName: {{ .Values.ingress.className | default "nginx" }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .host }}
-      http:
-        paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
-            backend:
-              service:
-                name: {{ $.Release.Name }}
-                port:
-                  number: {{ $.Values.service.port }}
-          {{- end }}
-    {{- end }}
-  tls:
-    {{- range .Values.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "nginx-chart.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
