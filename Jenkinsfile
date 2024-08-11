@@ -6,12 +6,13 @@ pipeline {
         imageName = "nginx-image"
         namespace = "dev"  // Target namespace
         awsCredentialsId = "aws-ecr-credentials"
+        region = "ap-south-1"  // Set the AWS region
     }
 
     stages {
         stage('Checkout') {
             steps {
-                 git branch: 'master', url: https://github.com/Bhargavi-lakamsani/helm-chart.git
+                git branch: 'master', url: 'https://github.com/Bhargavi-lakamsani/helm-chart.git'
             }
         }
         
@@ -26,9 +27,10 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: awsCredentialsId]]) {
-                     sh "aws ecr get-login-password --region region | docker login --username AWS --password-stdin ${registry}"
-                    sh "docker push ${registry}/${imageName}:${BUILD_NUMBER}"
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: awsCredentialsId]]) {
+                        sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}"
+                        sh "docker push ${registry}/${imageName}:${BUILD_NUMBER}"
+                    }
                 }
             }
         }
@@ -42,4 +44,3 @@ pipeline {
         }
     }
 }
-
