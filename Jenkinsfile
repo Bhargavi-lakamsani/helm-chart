@@ -4,7 +4,6 @@ pipeline {
     environment {
         registry = "590183706325.dkr.ecr.ap-south-1.amazonaws.com/docker-repo"
         imageName = "nginx-image"
-        namespace = "dev"  // Target namespace
         awsCredentialsId = "aws-ecr-credentials"
         region = "ap-south-1"  // Set the AWS region
     }
@@ -32,18 +31,6 @@ pipeline {
                         sh "docker tag ${imageName}:${BUILD_NUMBER} ${registry}:${BUILD_NUMBER}"
                         sh "docker push ${registry}:${BUILD_NUMBER}"
                     }
-                }
-            }
-        }
-        
-        stage('Create Namespace') {
-            steps {
-                script {
-                    sh """
-                    if ! kubectl get namespace ${namespace}; then
-                        kubectl create namespace ${namespace}
-                    fi
-                    """
                 }
             }
         }
