@@ -36,6 +36,14 @@ pipeline {
             }
         }
         
+        stage('Create Namespace') {
+            steps {
+                script {
+                    sh "kubectl get namespace ${namespace} || kubectl create namespace ${namespace}"
+                }
+            }
+        }
+        
         stage('Deploy with Helm') {
             steps {
                 script {
