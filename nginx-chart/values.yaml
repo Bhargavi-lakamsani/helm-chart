@@ -6,7 +6,7 @@ image:
   tag: "latest"
 
 service:
-  type: LoadBalancer
+  type: ClusterIp
   port: 80
 
 ingress:
