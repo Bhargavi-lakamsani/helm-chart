@@ -27,7 +27,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Use Docker layer caching to speed up build times
                     sh "docker build --cache-from ${registry}:latest -t ${imageName}:${BUILD_NUMBER} ."
                 }
             }
