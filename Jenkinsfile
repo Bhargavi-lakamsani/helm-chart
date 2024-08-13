@@ -1,8 +1,7 @@
 
 pipeline {
     agent {
-        // Use a node with a specific label optimized for Docker builds
-        label 'docker'
+         label 'docker'
     }
 
     environment {
@@ -10,17 +9,12 @@ pipeline {
         imageName = "nginx-image"
         awsCredentialsId = "aws-ecr-credentials"
         region = "ap-south-1"
-        namespace = "default"  // Set your Kubernetes namespace here
+        namespace = "default"  
     }
 
     options {
-        // Set a timeout to avoid hanging builds
         timeout(time: 30, unit: 'MINUTES')
-        // Limit the number of concurrent builds
         throttleJobProperty(maxConcurrentPerNode: 2, maxConcurrentTotal: 4)
-        // Use timestamps for better log readability
-        timestamps()
-        // Discard old builds to save disk space
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
@@ -59,7 +53,6 @@ pipeline {
         stage('Deploy with Helm') {
             steps {
                 script {
-                    // Helm deployment with set parameters
                     sh "helm upgrade --install nginx-release ./nginx-chart --namespace ${namespace} --set image.repository=${registry} --set image.tag=${BUILD_NUMBER}"
                 }
             }
@@ -68,16 +61,13 @@ pipeline {
 
     post {
         always {
-            // Clean up Docker images to free up space
             sh "docker rmi ${imageName}:${BUILD_NUMBER} || true"
             sh "docker rmi ${registry}:${BUILD_NUMBER} || true"
         }
         success {
-            // Notify on successful build (e.g., Slack, email)
             echo 'Build and deployment successful!'
         }
         failure {
-            // Notify on failure and collect logs
             echo 'Build or deployment failed!'
         }
     }
