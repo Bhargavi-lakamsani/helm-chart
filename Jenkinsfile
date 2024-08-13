@@ -20,7 +20,6 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Use shallow clone for faster checkout
                 git branch: 'master', url: 'https://github.com/Bhargavi-lakamsani/helm-chart.git', shallow: true
             }
         }
@@ -37,7 +36,6 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Efficient AWS credentials management with withAWS
                     withAWS(region: "${region}", credentials: "${awsCredentialsId}") {
                         sh """
                             $(aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry})
